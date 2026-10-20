@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>VoteArtiste224 | Vote musical</title>
+
+<style>
+*{box-sizing:border-box}
+:root{--sky:#dff5ff;--blue:#0788c5;--dark:#073b59}
+body{margin:0;font-family:Arial,sans-serif;background:#f3fbff;color:#173247}
+header{text-align:center;padding:32px 15px;background:linear-gradient(135deg,#a9e6ff,#effbff)}
+header h1{font-size:clamp(28px,5vw,44px);margin:0 0 10px;color:var(--dark)}
+header p{margin:0}
+main{max-width:1200px;margin:auto;padding:20px 14px 40px}
+.notice{padding:12px;background:#fff5d9;border-radius:10px;font-size:13px;line-height:1.5;margin-bottom:18px}
+.tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+input{flex:1;min-width:180px;padding:12px;border:1px solid #b6dce9;border-radius:9px;font-size:16px}
+button{border:0;border-radius:9px;background:var(--blue);color:white;font-weight:bold;padding:11px;cursor:pointer}
+button:disabled{background:#8ba9b8;cursor:not-allowed}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:16px}
+.card{background:white;border:1px solid #d7edf6;border-radius:14px;overflow:hidden;box-shadow:0 4px 14px #164e6310}
+.photo{height:200px;background:var(--sky);display:flex;align-items:center;justify-content:center;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover}
+.initial{font-size:42px;font-weight:bold;color:var(--blue)}
+.info{padding:13px}
+.info h2{color:var(--dark);font-size:17px;margin:0 0 10px}
+.votes{color:var(--blue);font-weight:bold;font-size:14px;margin:10px 0}
+.vote-button{width:100%}
+footer{text-align:center;padding:24px 12px;background:#e2f6ff;font-size:13px;line-height:1.6}
+@media(max-width:480px){
+ .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+ .photo{height:145px}.info{padding:9px}.info h2{font-size:14px}
+}
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎵 VoteArtiste224</h1>
+  <p>Le concours des artistes guinéens — vote gratuit</p>
+</header>
+
+<main>
+  <div class="notice">
+    <strong>Version de démonstration :</strong>
+    les votes sont enregistrés dans ce navigateur seulement.
+    Un serveur sécurisé sera nécessaire pour garantir un vote par personne
+    et par mois lors d'un vrai concours public.
+  </div>
+
+  <div class="tools">
+    <input id="recherche" type="search" placeholder="Rechercher un artiste...">
+    <button id="tri">Trier par votes</button>
+  </div>
+
+  <p id="nombre"></p>
+  <section class="grid" id="artistes"></section>
+</main>
+
+<footer>
+  VoteArtiste224 © 2026 · Tous les genres musicaux<br>
+  Vérifie l'identité des artistes et les droits d'utilisation des photos.
+</footer>
+
+<script>
+const artistes = [
+ {nom:"Azaya",photo:"images/azaya.jpg"},
+ {nom:"Djelykaba Bintou",photo:"images/djelykaba-bintou.jpg"},
+ {nom:"Soul Bang’s",photo:"images/soul-bangs.jpg"},
+ {nom:"Manamba Kanté",photo:"images/manamba-kante.jpg"},
+ {nom:"Ans-T Crazy",photo:"images/ans-t-crazy.jpg"},
+ {nom:"Saifond Baldé",photo:"images/saifond-balde.jpg"},
+ {nom:"Lil Saako",photo:"images/lil-saako.jpg"},
+ {nom:"Singleton",photo:"images/singleton.jpg"},
+ {nom:"Fish Killa",photo:"images/fish-killa.jpg"},
+ {nom:"Petit Kandia",photo:"images/petit-kandia.jpg"},
+ {nom:"Habib Fatako",photo:"images/habib-fatako.jpg"},
+ {nom:"Mousto Camara",photo:"images/mousto-camara.jpg"},
+ {nom:"Ibro Gnamet",photo:"images/ibro-gnamet.jpg"},
+ {nom:"Queen Rima",photo:"images/queen-rima.jpg"},
+ {nom:"Yama Sega",photo:"images/yama-sega.jpg"},
+ {nom:"Sona Tata",photo:"images/sona-tata.jpg"},
+ {nom:"Binette Diallo",photo:"images/binette-diallo.jpg"},
+ {nom:"Aïcha Kindia",photo:"images/aicha-kindia.jpg"},
+ {nom:"Tenin Diawara",photo:"images/tenin-diawara.jpg"},
+ {nom:"Mimi Payapaya",photo:"images/mimi-payapaya.jpg"},
+ {nom:"Sayon Camara",photo:"images/sayon-camara.jpg"},
+ {nom:"Sheba Queen",photo:"images/sheba-queen.jpg"},
+ {nom:"Fodé Baro",photo:"images/fode-baro.jpg"},
+ {nom:"Kandia Kora",photo:"images/kandia-kora.jpg"},
+ {nom:"Takana Zion",photo:"images/takana-zion.jpg"},
+ {nom:"Straiker",photo:"images/straiker.jpg"},
+ {nom:"Thiird",photo:"images/thiird.jpg"},
+ {nom:"Wada du Game",photo:"images/wada-du-game.jpg"},
+ {nom:"Le Mélangeur",photo:"images/le-melangeur.jpg"},
+ {nom:"Dépotoir",photo:"images/depotoir.jpg"},
+ {nom:"Maxim BK",photo:"images/maxim-bk.jpg"},
+ {nom:"AK4Seven",photo:"images/ak4seven.jpg"},
+ {nom:"Louny",photo:"images/louny.jpg"},
+ {nom:"Yetteh Bah",photo:"images/yetteh-bah.jpg"},
+ {nom:"Amaza",photo:"images/amaza.jpg"},
+ {nom:"Petit Ousté",photo:"images/petit-ouste.jpg"},
+ {nom:"Ousmane Paikoun",photo:"images/ousmane-paikoun.jpg"},
+ {nom:"Black Barry",photo:"images/black-barry.jpg"},
+ {nom:"Jupiter Davibe",photo:"images/jupiter-davibe.jpg"},
+ {nom:"Levi Bobo",photo:"images/levi-bobo.jpg"},
+ {nom:"Koury Simple",photo:"images/koury-simple.jpg"},
+ {nom:"Tiranké Sidimé",photo:"images/tiranke-sidime.jpg"},
+ {nom:"Mory Kanté",photo:"images/mory-kante.jpg"},
+ {nom:"Sékouba Bambino",photo:"images/sekouba-bambino.jpg"},
+ {nom:"Ba Cissoko",photo:"images/ba-cissoko.jpg"},
+ {nom:"N’Faly Kouyaté",photo:"images/nfaly-kouyate.jpg"},
+ {nom:"Lyricson",photo:"images/lyricson.jpg"},
+ {nom:"Alpha Yaya Diallo",photo:"images/alpha-yaya-diallo.jpg"},
+ {nom:"Sona Diabaté",photo:"images/sona-diabate.jpg"},
+ {nom:"Bembeya Jazz National",photo:"images/bembeya-jazz-national.jpg"},
+ {nom:"Mumba (à confirmer)",photo:"images/mumba.jpg"}
+];
+
+const mois=new Date().getFullYear()+"-"+(new Date().getMonth()+1);
+const cleVotes="va224-votes-"+mois;
+const cleVotant="va224-vote-effectue-"+mois;
+let votes={};
+let tri=false;
+
+try{votes=JSON.parse(localStorage.getItem(cleVotes)||"{}")}catch(e){votes={}}
+
+function afficher(){
+ const recherche=document.getElementById("recherche").value.toLocaleLowerCase("fr");
+ let liste=artistes.filter(a=>a.nom.toLocaleLowerCase("fr").includes(recherche));
+ if(tri)liste.sort((a,b)=>(votes[b.nom]||0)-(votes[a.nom]||0));
+
+ const conteneur=document.getElementById("artistes");
+ conteneur.replaceChildren();
+
+ liste.forEach(a=>{
+  const carte=document.createElement("article");
+  carte.className="card";
+
+  const zone=document.createElement("div");
+  zone.className="photo";
+
+  const img=document.createElement("img");
+  img.src=a.photo;
+  img.alt="Photo de "+a.nom;
+  img.loading="lazy";
+
+  const initiale=document.createElement("span");
+  initiale.className="initial";
+  initiale.textContent=a.nom.charAt(0).toUpperCase();
+
+  img.onerror=()=>{img.remove();zone.appendChild(initiale)};
+  zone.appendChild(img);
+
+  const info=document.createElement("div");
+  info.className="info";
+
+  const titre=document.createElement("h2");
+  titre.textContent=a.nom;
+
+  const compteur=document.createElement("div");
+  compteur.className="votes";
+  compteur.textContent="Votes : "+(votes[a.nom]||0);
+
+  const bouton=document.createElement("button");
+  bouton.className="vote-button";
+  bouton.textContent=localStorage.getItem(cleVotant)?"Vote déjà utilisé":"Voter gratuitement";
+  bouton.disabled=!!localStorage.getItem(cleVotant);
+
+  bouton.onclick=()=>{
+   if(localStorage.getItem(cleVotant)){
+    alert("Tu as déjà utilisé ton vote de démonstration ce mois-ci.");
+    return;
+   }
+   votes[a.nom]=(votes[a.nom]||0)+1;
+   localStorage.setItem(cleVotes,JSON.stringify(votes));
+   localStorage.setItem(cleVotant,a.nom);
+   alert("Vote de démonstration enregistré pour "+a.nom+".");
+   afficher();
+  };
+
+  info.append(titre,compteur,bouton);
+  carte.append(zone,info);
+  conteneur.appendChild(carte);
+ });
+
+ document.getElementById("nombre").textContent=
+  liste.length+" artiste(s) affiché(s) sur "+artistes.length;
+}
+
+document.getElementById("recherche").addEventListener("input",afficher);
+document.getElementById("tri").addEventListener("click",()=>{
+ tri=!tri;
+ document.getElementById("tri").textContent=tri?"Liste initiale":"Trier par votes";
+ afficher();
+});
+
+afficher();
+</script>
+</body>
+</html>
